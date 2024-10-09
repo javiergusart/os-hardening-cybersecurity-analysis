@@ -1,4 +1,4 @@
-# Comprehensive OS Hardening and Brute Force Attack Security Analysis: YummyRecipesForMe.com Incident
+# OS Hardening and Security Analysis
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -14,18 +14,25 @@
 5. [Conclusion](#conclusion)
 
 ## Overview
-This report details the analysis of a security incident at YummyRecipesForMe.com, a cooking website compromised by a brute force attack. The attacker altered the website’s code to distribute malware disguised as a file download. This document outlines the network protocols involved, the sequence of events observed, and remediations to prevent similar attacks in the future.
+This activity report examines a brute force attack that compromised a web application through unauthorized access. As part of the **Google Cybersecurity Certification**, specifically within the course **Connect and Protect: Networks and Network Security**, the primary objective is to illustrate how OS hardening techniques and network security principles can effectively mitigate the risks posed by brute force attacks.
+
+In this incident, a former employee exploited a weak default password to gain access to the admin panel of the cooking website, `yummyrecipesforme.com`. Upon gaining entry, the attacker modified the source code to inject a malicious JavaScript file that prompted unsuspecting visitors to download malware. This malware subsequently redirected users to a fraudulent site, `greatrecipesforme.com`, further compromising their systems. 
+
+> **Note**: The websites referenced in this report, `yummyrecipesforme.com` and `greatrecipesforme.com`, are fictitious and used for illustrative purposes only.
+
+To investigate this incident, I used **tcpdump**, a robust network packet analyzer, to monitor the attack and trace the propagation of the malware. My findings will detail the nature of the attack and provide recommendations for implementing **OS hardening techniques** to prevent similar incidents in the future.
+
+Additionally, I reference several key resources that enhance our understanding of the protocols and techniques discussed throughout the report, including:
+
+- **Tcpdump Traffic Log**: A resource that provides sample logs for analysis.
+- **How to Read the Tcpdump Traffic Log**: A guide that offers insights into interpreting network traffic data.
 
 ## Section 1: Identify the Network Protocol Involved in the Incident
 
-The primary protocol involved in this incident is **Hypertext Transfer Protocol (HTTP)**. HTTP was used for the connection between the web server and the client during the delivery of both legitimate and malicious content.
+The incident primarily involved two network protocols: **DNS (Domain Name System)** and **HTTP (Hypertext Transfer Protocol)**. These are the protocols that enabled communication between the browser and the compromised web application. 
 
-Upon analyzing the tcpdump logs, it was clear that:
-1. An HTTP GET request was made to the web server to load the website.
-2. The malicious JavaScript embedded in the website triggered a download over HTTP.
-3. The malware executed a redirection to another domain, where HTTP was again used to serve malicious content.
-
-The **DNS** protocol was also involved in resolving the domain names "yummyrecipesforme.com" and "greatrecipesforme.com" into their respective IP addresses.
+- **DNS** resolved the domain name into its corresponding IP address.
+- **HTTP** managed the transfer of web content, including the malicious file.
 
 ### Network Protocol Chart
 
@@ -37,28 +44,34 @@ The **DNS** protocol was also involved in resolving the domain names "yummyrecip
 ## Section 2: Document the Incident
 
 ### Incident Details
-The security event was triggered when several users reported slow performance on their personal computers after visiting the YummyRecipesForMe.com website. They noticed that upon visiting the site, they were prompted to download a file that promised access to free recipes. Once the file was downloaded and run, their browsers were redirected to a fake website (greatrecipesforme.com), which further compromised their systems.
+The security event was triggered when users reported that the fictitious website, `yummyrecipesforme.com`, prompted them to download a file containing "free recipes." After running the file, their computers slowed down, and their browsers were redirected to a fake site, `greatrecipesforme.com`.
 
-The website owner tried to regain access to the admin panel but found themselves locked out. This prompted the cybersecurity team to investigate the situation further.
+The **tcpdump** logs show the process as follows:
+1. A **DNS request** to resolve the domain.
+2. An **HTTP GET request** to load the website.
+3. The site prompted a download of the malicious file.
+4. After downloading and running the file, another **DNS request** was made to redirect users to the malicious site.
 
 ### Analysis and Investigation
-The cybersecurity analyst used a **sandbox environment** to test the suspicious file while isolating the threat from the company network. During this process, a **tcpdump** capture was performed to monitor network activity. The analysis revealed the following sequence of events:
+Using a **sandbox environment** (an isolated virtual environment that prevents malware from spreading), we analyzed the downloaded file and observed the browser’s redirection.
 
-1. **Initial DNS Request:** A DNS query was sent to resolve the domain "yummyrecipesforme.com."
-2. **HTTP GET Request:** The browser successfully loaded the website over HTTP. Immediately after, the site prompted the analyst to download an executable file.
-3. **Download and Execution:** After downloading and running the file, the browser initiated a new DNS request for "greatrecipesforme.com."
-4. **Redirection:** The browser was redirected to the malicious site, which led to the compromise.
+The logs also revealed how the malware redirected the browser:
+```plaintext
+14:20:32.192571 IP your.machine.52444 > dns.google.domain: 21899+ A? greatrecipesforme.com. (24)
+14:20:32.204388 IP dns.google.domain > your.machine.52444: 21899 1/0/0 A 192.0.2.17 (40)
+14:25:29.576493 IP your.machine.56378 > greatrecipesforme.com.http: Flags [S], seq 1020702883, win 65495, options [mss 65495,sackOK,TS val 3302989649 ecr 0,nop,wscale 7], length 0
+```
 
 ### Incident Timeline Chart
 
 | Step                                | Action/Observation                                                             |
 |-------------------------------------|--------------------------------------------------------------------------------|
-| **DNS Request for yummyrecipesforme.com** | The browser sends a DNS request to resolve the domain name for "yummyrecipesforme.com". |
-| **HTTP GET Request**                | The browser sends an HTTP GET request to the resolved IP address for "yummyrecipesforme.com". |
+| **DNS Request for Domain**         | The browser sends a DNS request to resolve the domain name.                   |
+| **HTTP GET Request**                | The browser sends an HTTP GET request to the resolved IP address.             |
 | **Prompt for Malicious Download**   | The website prompts the user to download a malicious file disguised as a browser update. |
 | **Malware Download and Execution**  | The user downloads and executes the malicious file, compromising their system. |
-| **DNS Request for greatrecipesforme.com** | The browser sends a DNS request to resolve "greatrecipesforme.com" after executing the malware. |
-| **Redirection to Malicious Site**   | The user is redirected to "greatrecipesforme.com", a fake website containing additional malware. |
+| **DNS Request for Fake Site**      | The browser sends a DNS request to resolve the malicious site after executing the malware. |
+| **Redirection to Malicious Site**   | The user is redirected to a fake website containing additional malware.       |
 
 ### Key Findings
 - The attacker exploited a **default admin password** to gain unauthorized access.
@@ -67,22 +80,27 @@ The cybersecurity analyst used a **sandbox environment** to test the suspicious 
 
 ## Section 3: Recommendations to Prevent Brute Force Attacks
 
-In response to this incident, we recommend the following security measures:
+To prevent similar attacks in the future, we recommend implementing several OS hardening techniques, as well as security controls that specifically address brute force attacks:
 
 ### 1. Disallow Default or Reused Passwords
-One of the primary vulnerabilities exploited in this attack was the use of a default password. To mitigate this risk, we recommend enforcing a policy that prevents the reuse of old or default passwords during login and password resets.
+Attackers often exploit default or weak passwords. Organizations must enforce policies that prevent the reuse of old or default passwords.
 
 ### 2. Enforce Frequent Password Updates
-Regular password updates reduce the window of opportunity for attackers. By requiring users to change their passwords regularly, the risk of brute force attacks succeeding is minimized.
+Regular password changes reduce the time attackers have to exploit compromised credentials. Forcing frequent updates can mitigate this risk.
 
 ### 3. Implement Multi-Factor Authentication (MFA)
-Adding **MFA** significantly strengthens login security. Even if an attacker guesses the password, they will need an additional authentication factor, such as a one-time password (OTP) sent to the user's phone or email.
+MFA adds a second layer of security. Even if an attacker guesses the password, they would need an additional factor (such as a one-time password sent via email or SMS) to gain access.
 
 ### 4. Utilize CAPTCHA for Login Pages
-Implementing CAPTCHA or reCAPTCHA on the admin login page can prevent automated scripts from attempting to guess passwords. This simple step adds an additional barrier to brute force attacks.
+Implementing CAPTCHA or reCAPTCHA can prevent automated bots from making repeated login attempts, reducing the effectiveness of brute force attacks.
 
 ### 5. OS Hardening
-Hardening the operating system involves disabling unused services, securing default accounts, and applying all relevant security patches. These steps will reduce the number of exploitable vulnerabilities on the server.
+Hardening the operating system involves:
+- Disabling unused services.
+- Securing default accounts.
+- Regularly applying security patches.
+
+These practices help reduce the number of exploitable vulnerabilities on the server.
 
 ### Prevention Chart
 
@@ -96,6 +114,8 @@ Hardening the operating system involves disabling unused services, securing defa
 
 ## Conclusion
 
-This incident highlights the importance of enforcing robust security practices, particularly around password management and user authentication. By implementing the recommendations outlined above, YummyRecipesForMe.com can better protect itself from brute force attacks and similar cybersecurity threats.
+Reflecting on this brute force attack, I've gained valuable insights into the vulnerabilities that can exist in web applications and the critical importance of maintaining strong security measures. This incident underscored the necessity of robust password policies, as relying on default passwords can lead to severe consequences. Organizations should encourage the use of complex, unique passwords and regular updates to ensure ongoing security.
 
-The incident provided valuable insights into how web servers can be compromised and what steps must be taken to prevent such occurrences in the future. This activity also showcases expertise in **network traffic analysis**, **malware investigation**, and **cybersecurity remediation**.
+The experience reinforced the value of continuous security audits and proactive vulnerability assessments, which can significantly strengthen defenses. Implementing multi-factor authentication is essential, as it adds an important layer of security that helps mitigate risks even if a password is compromised.
+
+Additionally, utilizing tools like **tcpdump** has highlighted the significance of monitoring network traffic to identify potential threats and respond quickly to incidents. Overall, this experience has deepened my understanding of cybersecurity and the proactive measures necessary to protect against future threats.
