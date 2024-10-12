@@ -53,7 +53,7 @@ The **tcpdump** logs show the process as follows:
 4. After downloading and running the file, another **DNS request** was made to redirect users to the malicious site.
 
 ### Analysis and Investigation
-Using a **sandbox environment** (an isolated virtual environment that prevents malware from spreading), we analyzed the downloaded file and observed the browser’s redirection.
+Using a **sandbox environment** (an isolated virtual environment that prevents malware from spreading), I analyzed the downloaded file and observed the browser’s redirection.
 
 The logs also revealed how the malware redirected the browser:
 ```plaintext
