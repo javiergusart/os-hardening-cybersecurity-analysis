@@ -1,4 +1,4 @@
-# OS Hardening and Security Analysis
+# Operating System Hardening and Security Analysis
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -24,8 +24,8 @@ To investigate this incident, I used **tcpdump**, a robust network packet analyz
 
 Additionally, I reference several key resources that enhance our understanding of the protocols and techniques discussed throughout the report, including:
 
-- **Tcpdump Traffic Log**: A resource that provides sample logs for analysis.
-- **How to Read the Tcpdump Traffic Log**: A guide that offers insights into interpreting network traffic data.
+- **[Tcpdump Traffic Log](https://docs.google.com/document/d/1ShBplKI8pUqhYKxBVT-_UNXJ8CgGu2CGImezD4LUh9k/edit?usp=sharing)**: A resource that provides sample logs for analysis.
+- **[How to Read the Tcpdump Traffic Log](https://docs.google.com/document/d/1SifoqPD-zryiZkT6GOtBTGkkfoECdkAIoaJ0JA62-XA/edit?tab=t.0#heading=h.shz1bcdh2tm3)**: A guide that offers insights into interpreting network traffic data.
 
 ## Section 1: Identify the Network Protocol Involved in the Incident
 
