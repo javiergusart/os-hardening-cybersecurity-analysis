@@ -1,4 +1,4 @@
-# Operating System Hardening and Security Analysis
+# Operating System Hardening and Cybersecurity Monitoring
 
 ## Table of Contents
 1. [Overview](#overview)
